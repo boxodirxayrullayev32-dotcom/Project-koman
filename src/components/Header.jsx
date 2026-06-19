@@ -4,7 +4,7 @@ const navItems = [
   { label: "Ish e'lon qilish", path: '/ishchi-paneli' },
   { label: 'Xabarlar', path: '/vakansiyalar' },
   { label: 'Kompaniyalar', path: '/kompaniyalar' },
-  { label: 'Yangiliklar', path: '/yangiliklar' },
+  { label: "To'lovlar", path: '/yangiliklar' },
   { label: 'Ish joylashtirish', path: '/aloqa' },
 ]
 

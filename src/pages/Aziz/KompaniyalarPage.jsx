@@ -154,8 +154,23 @@ function KompaniyalarPage() {
 
   const handleOfferSubmit = (e) => {
     e.preventDefault()
-    setToastMessage(`Farhod Karimovga "${invitedJobTitle}" ishi bo'yicha taklif yuborildi!`)
+    setToastMessage(`Farhod Karimovga "${invitedJobTitle}" ishi bo'yicha taklif yuborildi! Telegram ochiladi.`)
     setOfferModalOpen(false)
+
+    const message = [
+      "Salom, sizga ish taklifi keldi!",
+      `Ish: ${invitedJobTitle}`,
+      `Mutaxassis: Farhod Karimov`,
+      invitationMessage && `Tafsilot: ${invitationMessage}`,
+      "Kunlikish platformasi orqali yuborildi.",
+    ].filter(Boolean).join('\n')
+
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(message).catch(() => {})
+    }
+
+    window.location.href = 'https://t.me/+ZOUUb23Ow9VjZDUy'
+
     setInvitedJobTitle("")
     setInvitationMessage("")
     setTimeout(() => {

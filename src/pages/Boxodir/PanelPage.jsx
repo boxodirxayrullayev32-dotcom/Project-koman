@@ -60,6 +60,22 @@ const workItems = [
   { label: "To'lov", value: 'Kunlik' },
 ]
 
+const telegramGroupUrl = 'https://t.me/+ZOUUb23Ow9VjZDUy'
+
+const defaultJob = {
+  title: "G'isht terish va beton quyish ishlari",
+  category: 'Qurilish',
+  location: "Toshkent shahri, Chilonzor tumani",
+  price: "250 000 so'm / kun",
+  date: '12-oktyabr, 08:00',
+  image: gish,
+  alt: "G'isht terish va beton ishlari",
+  description:
+    "Yangi qurilayotgan 2 qavatli uy uchun g'isht terish va fundament beton ishlari bajarish kerak. Ish hajmi taxminan 1500 dona g'isht va 10 kub beton quyishdan iborat. Kerakli barcha materiallar obyektga yetkazib beriladi, tajribali ustalar guruhiga ustunlik beriladi.",
+  employer: 'Abduqodir Dehqonov',
+  employerRating: '4.9 (24 ta sharh)',
+}
+
 const currency = new Intl.NumberFormat('uz-UZ')
 
 function MapPreview({ city, district }) {
@@ -104,15 +120,24 @@ function MapPreview({ city, district }) {
 }
 
 function PanelPage() {
+  const [job] = useState(() => {
+    try {
+      const stored = window.sessionStorage.getItem('selectedJob')
+      return stored ? { ...defaultJob, ...JSON.parse(stored) } : defaultJob
+    } catch {
+      return defaultJob
+    }
+  })
+  const initialBudget = Number(String(job.price).replace(/\D/g, '')) || 250000
   const [city, setCity] = useState('Toshkent')
   const [district, setDistrict] = useState('Zangiota')
-  const [jobDate] = useState('12-oktyabr, 08:00')
-  const [budget, setBudget] = useState(250000)
-  const [counterOffer, setCounterOffer] = useState('250000')
+  const [jobDate] = useState(job.date)
+  const [budget, setBudget] = useState(initialBudget)
+  const [counterOffer, setCounterOffer] = useState(String(initialBudget))
   const [statusText, setStatusText] = useState('Taklif tayyor')
   const [note, setNote] = useState('')
 
-  const summaryLine = `${city} viloyati, ${district} tumani`
+  const summaryLine = job.location || `${city} viloyati, ${district} tumani`
   const selectedPoint = locationPoints[city]?.[district] ?? locationPoints.Toshkent.Zangiota
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedPoint.label)}`
 
@@ -124,37 +149,29 @@ function PanelPage() {
 
   const buildTelegramMessage = (amount) => {
     const lines = [
-      "Salom, men 'Taklifni yuborish' orqali murojaat qildim.",
-      `Loyiha: G'isht terish va beton quyish ishlari`,
-      `Taklif: ${currency.format(amount)} so'm`,
-      `Lokatsiya: ${selectedPoint.label}`,
-      `Vaqt: ${jobDate}`,
+      'Salom, men quyidagi ish bo‘yicha taklif yuboraman:',
+      `Ish: ${job.title}`,
+      `Narx: ${job.price}`,
+      `Taklifim: ${currency.format(amount)} so'm`,
+      `Joylashuv: ${summaryLine}`,
+      `Aniq manzil: ${selectedPoint.label}`,
+      `Muddat: ${jobDate}`,
+      '',
+      `${job.description}`,
     ]
 
     return lines.join('\n')
   }
 
-  const handleCounterSubmit = (event) => {
-    event.preventDefault()
+  const prepareTelegramMessage = () => {
     const amount = Math.max(150000, Math.min(500000, Number(counterOffer) || budget))
     setBudget(amount)
     setCounterOffer(String(amount))
     setStatusText('Taklif yuborildi')
     setNote(`${currency.format(amount)} so'm miqdorida taklif yuborildi.`)
 
-    const telegramUrl = `tg://resolve?domain=khairullayev`
-    const message = buildTelegramMessage(amount)
-
     if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(message).catch(() => {})
-    }
-
-    const popup = window.open('about:blank', '_blank', 'noopener,noreferrer')
-
-    if (popup) {
-      popup.location.href = telegramUrl
-    } else {
-      window.location.href = telegramUrl
+      navigator.clipboard.writeText(buildTelegramMessage(amount)).catch(() => {})
     }
   }
 
@@ -173,14 +190,14 @@ function PanelPage() {
           <div className="panel-layout__main grid gap-3">
             <article className="panel-card panel-card--hero overflow-hidden rounded-[10px] border border-[rgba(220,176,110,0.45)] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
               <div className="">
-                <img src={gish} alt="" />
+                <img src={job.image || gish} alt={job.alt || job.title} className="block w-full h-auto object-cover" />
               </div>
 
               <div className="panel-card__body px-3 pb-3 pt-2.5">
                 <div className="panel-card__title-row flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
                   <div>
                     <h1 className="panel-title m-0 text-[clamp(2rem,3.2vw,3.1rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-slate-800">
-                      G'isht terish va beton quyish ishlari
+                      {job.title}
                     </h1>
                     <div className="panel-meta mt-2 flex flex-wrap gap-3 text-[0.88rem] text-[#8b5d2a]">
                       <span>
@@ -216,10 +233,7 @@ function PanelPage() {
                 <div className="panel-copy mt-3 border-t border-[rgba(189,141,73,0.28)] pt-3">
                   <h2>Ish tavsifi</h2>
                   <p>
-                    Yangi qurilayotgan 2 qavatli uy uchun g'isht terish va fundament
-                    beton ishlari bajarish kerak. Ish hajmi taxminan 1500 dona g'isht va
-                    10 kub beton quyishdan iborat. Kerakli barcha materiallar obyektga
-                    yetkazib beriladi, tajribali ustalar guruhiga ustunlik beriladi.
+                    {job.description}
                   </p>
                 </div>
               </div>
@@ -308,10 +322,10 @@ function PanelPage() {
           <aside className="panel-layout__aside grid gap-3">
             <section className="offer-card rounded-[10px] border border-[rgba(220,176,110,0.45)] bg-white p-3 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
               <p className="offer-card__label">Taklif etilgan kunlik ish haqi</p>
-              <div className="offer-card__amount">{currency.format(budget)} so'm</div>
+              <div className="offer-card__amount">{job.price}</div>
               <div className="divider my-3 h-px bg-[rgba(195,160,109,0.45)]" />
 
-              <form className="counter-form grid gap-2.5" onSubmit={handleCounterSubmit}>
+              <form className="counter-form grid gap-2.5" onSubmit={(event) => { event.preventDefault(); prepareTelegramMessage(); }}>
                 <div className="counter-form__heading">Kelishuv (Counter-offer)</div>
                 <p className="counter-form__hint">Siz o'z narxingizni taklif qilishingiz mumkin:</p>
 
@@ -352,9 +366,15 @@ function PanelPage() {
                   onChange={(event) => applyBudgetChange(event.target.value)}
                 />
 
-                <button type="submit" className="primary-submit min-h-10 rounded-[8px] bg-gradient-to-b from-[#f7b33b] to-[#f19f08] font-bold text-[#593500] shadow-[0_8px_18px_rgba(241,159,8,0.18)]">
+                <a
+                  href={telegramGroupUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={prepareTelegramMessage}
+                  className="primary-submit min-h-10 rounded-[8px] bg-gradient-to-b from-[#f7b33b] to-[#f19f08] font-bold text-[#593500] shadow-[0_8px_18px_rgba(241,159,8,0.18)] inline-flex items-center justify-center"
+                >
                   <span>Taklifni yuborish</span>
-                </button>
+                </a>
                 <div className="trust-banner flex min-h-9 items-center gap-2 rounded-[8px] bg-[#d8f0df] px-3 text-[0.78rem] text-[#27634c]">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 2 4 5v6c0 5.6 3.7 10.7 8 11 4.3-.3 8-5.4 8-11V5l-8-3Z" />
@@ -378,8 +398,8 @@ function PanelPage() {
                   AD
                 </div>
                 <div>
-                  <div className="employer-name">Abduqodir Dehqonov</div>
-                  <div className="employer-rate">* 4.9 (24 ta sharh)</div>
+                  <div className="employer-name">{job.employer}</div>
+                  <div className="employer-rate">* {job.employerRating}</div>
                 </div>
               </div>
               <button type="button" className="ghost-button mt-2.5 min-h-8 w-full rounded-[8px] border border-[rgba(193,150,82,0.35)] bg-white text-[#a5691b]">
@@ -398,16 +418,6 @@ function PanelPage() {
           </aside>
         </div>
 
-        <footer className="page-footer mt-4 rounded-t-[12px] bg-gradient-to-b from-[#586375] to-[#4f596b] px-3 py-6 text-center text-white/70">
-          <div className="page-footer__brand">Kunlikish</div>
-          <div className="page-footer__links mt-3 flex flex-wrap justify-center gap-4 text-[0.78rem]">
-            <a href="#/">Biz haqimizda</a>
-            <a href="#/">Foydalanish shartlari</a>
-            <a href="#/">Maxfiylik siyosati</a>
-            <a href="#/">Bog'lanish</a>
-          </div>
-          <div className="page-footer__copy mt-4 border-t border-white/10 pt-3 text-[0.76rem]">(c) 2026 Kunlikish. Barcha huquqlar himoyalangan.</div>
-        </footer>
       </div>
     </section>
   )

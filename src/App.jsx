@@ -28,7 +28,7 @@ function App({ path, onNavigate }) {
     <div className="app-shell">
       <Header currentPath={path} onNavigate={onNavigate} />
       <main className="page-frame">
-        <Page />
+        <Page onNavigate={onNavigate} />
       </main>
       <Footer/>
     </div>
