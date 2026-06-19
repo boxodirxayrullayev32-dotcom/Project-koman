@@ -7,6 +7,8 @@ import KompaniyalarPage from './pages/Aziz/KompaniyalarPage.jsx'
 import PanelPage from './pages/Boxodir/PanelPage.jsx'
 import YangiliklarPage from './pages/Boxodir/YangiliklarPage.jsx'
 import AloqaPage from './pages/Azamat/AloqaPage.jsx'
+import Footer from './pages/Azamat/Footer.jsx'
+
 
 const routes = {
   '/': HomePage,
@@ -28,6 +30,7 @@ function App({ path, onNavigate }) {
       <main className="page-frame">
         <Page />
       </main>
+      <Footer/>
     </div>
   )
 }
