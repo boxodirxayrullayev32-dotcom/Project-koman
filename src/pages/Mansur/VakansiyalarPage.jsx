@@ -11,6 +11,7 @@ function VakansiyalarPage() {
           <li>Vakansiya cardlarini qilish</li>
           <li>Filter bloklarini qo‘shish</li>
           <li>Pagination yoki footer qismini joylash</li>
+         
         </ul>
       </div>
     </section>
