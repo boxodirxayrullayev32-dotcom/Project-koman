@@ -2,10 +2,10 @@ const navItems = [
   { label: 'Bosh sahifa', path: '/kunlikish' },
   { label: 'Ish qidirish', path: '/ish-qidirish' },
   { label: "Ish e'lon qilish", path: '/ishchi-paneli' },
-  { label: 'Vakansiyalar', path: '/vakansiyalar' },
+  { label: 'Xabarlar', path: '/vakansiyalar' },
   { label: 'Kompaniyalar', path: '/kompaniyalar' },
   { label: 'Yangiliklar', path: '/yangiliklar' },
-  { label: 'Yordam', path: '/aloqa' },
+  { label: 'Ish joylashtirish', path: '/aloqa' },
 ]
 
 function GlobeIcon() {
